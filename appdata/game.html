@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Game</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .game-header {
+            background-color: #34495e;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .game-title {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .game-stats {
+            display: flex;
+            gap: 1rem;
+        }
+        .stat {
+            background-color: #3498db;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .game-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .game-sidebar {
+            width: 250px;
+            background-color: #34495e;
+            padding: 1rem;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .game-main {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .game-map {
+            flex: 1;
+            background-color: #34495e;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: #7f8c8d;
+        }
+        .game-controls {
+            background-color: #34495e;
+            padding: 1rem;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .inventory-item {
+            background-color: #2c3e50;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .inventory-item:hover {
+            background-color: #3498db;
+        }
+        .btn-game {
+            min-width: 100px;
+        }
+        
+        /* Custom Context Menu Styles */
+        .custom-context-menu {
+            display: none;
+            position: absolute;
+            background-color: #34495e;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            overflow: hidden;
+            min-width: 180px;
+        }
+        .context-menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: #ecf0f1;
+            display: flex;
+            align-items: center;
+        }
+        .context-menu-item:hover {
+            background-color: #3498db;
+        }
+        .context-menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .context-menu-divider {
+            height: 1px;
+            background-color: #2c3e50;
+            margin: 5px 0;
+        }
+        
+        /* Modal styles for better text visibility */
+        .modal-content {
+            color: #212529; /* Dark text color for modal content */
+        }
+        .modal-header, .modal-footer {
+            border-color: #dee2e6;
+        }
+        .modal-body {
+            color: #212529;
+            font-size: 1rem;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="game-header">
+        <h1 class="game-title">RPG Adventure</h1>
+        <div class="game-stats">
+            <div class="stat">HP: <span id="playerHP">100/100</span></div>
+            <div class="stat">MP: <span id="playerMP">50/50</span></div>
+            <div class="stat">Gold: <span id="playerGold">100</span></div>
+        </div>
+        <div>
+            <span class="mr-3 text-light">Character: <span id="playerName">Hero</span></span>
+            <button class="btn btn-sm btn-success mr-2" onclick="saveGame()">Save Game</button>
+            <button class="btn btn-sm btn-danger" onclick="returnToMenu()">Main Menu</button>
+        </div>
+    </div>
+
+    <div class="game-content">
+        <div class="game-sidebar">
+            <h4>Inventory</h4>
+            <div class="inventory-item">Healing Potion x3</div>
+            <div class="inventory-item">Mana Potion x2</div>
+            <div class="inventory-item">Bronze Sword</div>
+            <div class="inventory-item">Leather Armor</div>
+            <div class="inventory-item">Wooden Shield</div>
+            
+            <h4 class="mt-4">Quests</h4>
+            <div class="inventory-item">Defeat the Goblin King</div>
+            <div class="inventory-item">Find the Lost Artifact</div>
+        </div>
+
+        <div class="game-main">
+            <div class="game-map">
+                Game World Map
+            </div>
+            <div class="game-controls">
+                <button class="btn btn-primary btn-game" onclick="moveNorth()">North</button>
+                <button class="btn btn-primary btn-game" onclick="moveWest()">West</button>
+                <button class="btn btn-primary btn-game" onclick="moveEast()">East</button>
+                <button class="btn btn-primary btn-game" onclick="moveSouth()">South</button>
+                <button class="btn btn-success btn-game" onclick="interact()">Interact</button>
+                <button class="btn btn-warning btn-game" onclick="attack()">Attack</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div id="customContextMenu" class="custom-context-menu">
+        <div class="context-menu-item" onclick="showCharacterSheet()">
+            <i class="fas fa-user"></i> Character Sheet
+        </div>
+        <div class="context-menu-item" onclick="showInventory()">
+            <i class="fas fa-briefcase"></i> Inventory
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="showSkills()">
+            <i class="fas fa-bolt"></i> Skills
+        </div>
+        <div class="context-menu-item" onclick="showQuests()">
+            <i class="fas fa-scroll"></i> Quests
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="saveGame()">
+            <i class="fas fa-save"></i> Save Game
+        </div>
+    </div>
+
+    <!-- Character Sheet Modal -->
+    <div class="modal fade" id="characterSheetModal" tabindex="-1" role="dialog" aria-labelledby="characterSheetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="characterSheetModalLabel">Character Sheet</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Click test - Character Sheet</p>
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <strong>Character Information</strong>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Name:</strong> <span id="charSheetName">Hero</span></p>
+                            <p><strong>Level:</strong> <span id="charSheetLevel">1</span></p>
+                            <p><strong>Experience:</strong> <span id="charSheetExp">0</span> / <span id="charSheetNextExp">100</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inventoryModalLabel">Inventory</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Click test - Inventory</p>
+                    <div class="card mb-3">
+                        <div class="card-header bg-secondary text-white">
+                            <strong>Items</strong>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Healing Potion
+                                    <span class="badge badge-primary badge-pill">3</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Mana Potion
+                                    <span class="badge badge-primary badge-pill">2</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Modal -->
+    <div class="modal fade" id="skillsModal" tabindex="-1" role="dialog" aria-labelledby="skillsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="skillsModalLabel">Skills</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Click test - Skills</p>
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">
+                            <strong>Available Skills</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                No skills available yet. Gain more experience to unlock skills.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quests Modal -->
+    <div class="modal fade" id="questsModal" tabindex="-1" role="dialog" aria-labelledby="questsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="questsModalLabel">Quests</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Click test - Quests</p>
+                    <div class="card mb-3">
+                        <div class="card-header bg-warning text-dark">
+                            <strong>Active Quests</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <strong>Defeat the Goblin King</strong>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                </div>
+                            </div>
+                            <div class="alert alert-warning">
+                                <strong>Find the Lost Artifact</strong>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Game Success Modal -->
+    <div class="modal fade" id="saveSuccessModal" tabindex="-1" role="dialog" aria-labelledby="saveSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="saveSuccessModalLabel">Game Saved</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="text-center">Your game has been saved successfully!</p>
+                    <p class="text-center text-muted small" id="saveGameDetails"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Game Error Modal -->
+    <div class="modal fade" id="saveErrorModal" tabindex="-1" role="dialog" aria-labelledby="saveErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="saveErrorModalLabel">Save Error</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="text-center">There was an error saving your game.</p>
+                    <p class="text-center text-danger" id="saveErrorMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" onclick="saveGame()">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to store the backend object
+        var backend = null;
+        var gameState = null;
+
+        // Function to initialize the QWebChannel
+        function initWebChannel() {
+            if (typeof QWebChannel === "undefined") {
+                console.error("QWebChannel not found!");
+                return;
+            }
+
+            new QWebChannel(qt.webChannelTransport, function(channel) {
+                // Store the backend object
+                backend = channel.objects.backend;
+                console.log("QWebChannel initialized successfully");
+                
+                // Connect to the stateChanged signal
+                backend.stateChanged.connect(function(stateJson) {
+                    updateGameState(JSON.parse(stateJson));
+                });
+                
+                // Get the current game state
+                backend.get_current_state().then(function(stateJson) {
+                    updateGameState(JSON.parse(stateJson));
+                });
+            });
+        }
+
+        // Load qwebchannel.js from the same directory
+        var script = document.createElement('script');
+        script.src = "qwebchannel.js";
+        script.onload = initWebChannel;
+        document.head.appendChild(script);
+
+        // Function to update the game state
+        function updateGameState(state) {
+            gameState = state;
+            
+            // Update the UI with the new state
+            document.getElementById('playerHP').textContent = 
+                state.player.hp + '/' + state.player.max_hp;
+            document.getElementById('playerMP').textContent = 
+                state.player.mp + '/' + state.player.max_mp;
+            document.getElementById('playerGold').textContent = 
+                state.player.gold;
+            document.getElementById('playerName').textContent = 
+                state.player.name;
+            
+            // You would update other UI elements here based on the state
+        }
+
+        // Function to save the game
+        function saveGame() {
+            if (!backend) {
+                console.error("Backend not initialized!");
+                showSaveError("Backend not initialized. Please restart the game.");
+                return;
+            }
+            
+            // Save the game using the character name
+            backend.save_game().then(function(result) {
+                const response = JSON.parse(result);
+                if (response.success) {
+                    // Show success modal
+                    document.getElementById('saveGameDetails').textContent = 
+                        `Character: ${gameState.player.name} | Level: ${gameState.player.level}`;
+                    $('#saveSuccessModal').modal('show');
+                } else {
+                    // Show error modal
+                    showSaveError(response.message);
+                }
+            }).catch(function(error) {
+                // Show error modal
+                showSaveError("An unexpected error occurred.");
+                console.error("Save error:", error);
+            });
+        }
+
+        function returnToMenu() {
+            if (backend) {
+                backend.return_to_menu();
+            } else {
+                alert("Error: Backend not initialized!");
+            }
+        }
+
+        function moveNorth() {
+            console.log("Moving North");
+            // Update player position in the game state
+            if (gameState) {
+                gameState.player.position.y -= 1;
+                updateBackendState();
+            }
+        }
+
+        function moveWest() {
+            console.log("Moving West");
+            if (gameState) {
+                gameState.player.position.x -= 1;
+                updateBackendState();
+            }
+        }
+
+        function moveEast() {
+            console.log("Moving East");
+            if (gameState) {
+                gameState.player.position.x += 1;
+                updateBackendState();
+            }
+        }
+
+        function moveSouth() {
+            console.log("Moving South");
+            if (gameState) {
+                gameState.player.position.y += 1;
+                updateBackendState();
+            }
+        }
+
+        function interact() {
+            console.log("Interacting");
+            // Example: Add gold when interacting
+            if (gameState) {
+                gameState.player.gold += 10;
+                updateBackendState();
+            }
+        }
+
+        function attack() {
+            console.log("Attacking");
+            // Example: Lose some HP when attacking
+            if (gameState) {
+                gameState.player.hp = Math.max(1, gameState.player.hp - 5);
+                updateBackendState();
+            }
+        }
+
+        // Function to update the backend state
+        function updateBackendState() {
+            if (!backend || !gameState) {
+                return;
+            }
+            
+            // Send the updated state to the backend
+            backend.update_state(JSON.stringify(gameState)).then(function(result) {
+                const response = JSON.parse(result);
+                if (response.success) {
+                    // Update the UI with the new state
+                    updateGameState(response.state);
+                }
+            });
+        }
+
+        // Custom Context Menu Functions
+        function showCharacterSheet() {
+            if (gameState) {
+                // Update character sheet with current game state
+                document.getElementById('charSheetName').textContent = gameState.player.name;
+                document.getElementById('charSheetLevel').textContent = gameState.player.level;
+                document.getElementById('charSheetExp').textContent = gameState.player.exp;
+                document.getElementById('charSheetNextExp').textContent = gameState.player.next_level_exp;
+            }
+            $('#characterSheetModal').modal('show');
+        }
+
+        function showInventory() {
+            // Could populate inventory items from gameState here
+            $('#inventoryModal').modal('show');
+        }
+
+        function showSkills() {
+            // Could populate skills from gameState here
+            $('#skillsModal').modal('show');
+        }
+
+        function showQuests() {
+            // Could populate quests from gameState here
+            $('#questsModal').modal('show');
+        }
+
+        // Context Menu Event Handlers
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            
+            const contextMenu = document.getElementById('customContextMenu');
+            
+            // Position the context menu at the cursor position
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+            
+            // Show the context menu
+            contextMenu.style.display = 'block';
+        });
+
+        // Hide context menu when clicking elsewhere
+        document.addEventListener('click', function() {
+            document.getElementById('customContextMenu').style.display = 'none';
+        });
+
+        // Hide context menu when pressing escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('customContextMenu').style.display = 'none';
+            }
+        });
+
+        // Prevent the context menu from closing when clicking on it
+        document.getElementById('customContextMenu').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Function to show save error
+        function showSaveError(message) {
+            document.getElementById('saveErrorMessage').textContent = message;
+            $('#saveErrorModal').modal('show');
+        }
+    </script>
+</body>
+</html> 

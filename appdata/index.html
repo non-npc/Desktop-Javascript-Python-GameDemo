@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .menu-container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        .menu-title {
+            margin-bottom: 2rem;
+            color: #343a40;
+        }
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .menu-button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .menu-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <h1 class="menu-title">RPG Game</h1>
+        <div class="menu-buttons">
+            <button class="btn btn-primary menu-button" onclick="showCharacterNameModal()">Start Game</button>
+            <button class="btn btn-secondary menu-button" onclick="loadGame()">Load Game</button>
+            <button class="btn btn-info menu-button" onclick="settings()">Settings</button>
+            <button class="btn btn-danger menu-button" onclick="exitApp()">Exit</button>
+        </div>
+        <div class="footer">
+            <p>Serverless JavaScript RPG &copy; 2023</p>
+        </div>
+    </div>
+
+    <!-- Character Name Modal -->
+    <div class="modal fade" id="characterNameModal" tabindex="-1" role="dialog" aria-labelledby="characterNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="characterNameModalLabel">Create Your Character</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="characterNameInput">Character Name:</label>
+                        <input type="text" class="form-control" id="characterNameInput" placeholder="Enter your character name">
+                        <div id="characterNameError" class="error-message">
+                            Character name must be alphanumeric and between 3-20 characters.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="validateAndStartGame()">Start Adventure</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to store the backend object
+        var backend = null;
+
+        // Function to initialize the QWebChannel
+        function initWebChannel() {
+            if (typeof QWebChannel === "undefined") {
+                console.error("QWebChannel not found!");
+                return;
+            }
+
+            new QWebChannel(qt.webChannelTransport, function(channel) {
+                // Store the backend object
+                backend = channel.objects.backend;
+                console.log("QWebChannel initialized successfully");
+            });
+        }
+
+        // Load qwebchannel.js from the same directory
+        var script = document.createElement('script');
+        script.src = "qwebchannel.js";
+        script.onload = initWebChannel;
+        document.head.appendChild(script);
+
+        function showCharacterNameModal() {
+            // Clear any previous input
+            document.getElementById('characterNameInput').value = '';
+            document.getElementById('characterNameError').style.display = 'none';
+            
+            // Show the modal
+            $('#characterNameModal').modal('show');
+        }
+
+        function validateAndStartGame() {
+            const characterNameInput = document.getElementById('characterNameInput');
+            const characterName = characterNameInput.value.trim();
+            const errorElement = document.getElementById('characterNameError');
+            
+            // Validate character name (alphanumeric, 3-20 characters)
+            const isValid = /^[a-zA-Z0-9]{3,20}$/.test(characterName);
+            
+            if (!isValid) {
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            // Hide the error message and modal
+            errorElement.style.display = 'none';
+            $('#characterNameModal').modal('hide');
+            
+            // Start the game with the character name
+            startGame(characterName);
+        }
+
+        function startGame(characterName) {
+            console.log("Start Game clicked with character name: " + characterName);
+            if (backend) {
+                backend.start_game(characterName);
+            } else {
+                console.error("Backend not initialized!");
+                alert("Error: Cannot start game, backend not initialized");
+            }
+        }
+
+        function loadGame() {
+            console.log("Load Game clicked");
+            if (backend) {
+                // Navigate to the load game screen
+                backend.load_game_screen();
+            } else {
+                console.error("Backend not initialized!");
+                alert("Error: Cannot load game, backend not initialized");
+            }
+        }
+
+        function settings() {
+            alert("Settings clicked");
+            // if (backend) backend.openSettings();
+        }
+
+        function exitApp() {
+            console.log("Exit clicked");
+            if (backend) {
+                console.log("Calling backend.exit_app()");
+                backend.exit_app();
+            } else {
+                console.error("Backend not initialized!");
+                alert("Error: Cannot exit application, backend not initialized");
+            }
+        }
+        
+        // Add event listener for Enter key in the character name input
+        document.getElementById('characterNameInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                validateAndStartGame();
+            }
+        });
+    </script>
+</body>
+</html>
