@@ -22,6 +22,9 @@ A windows desktop application framework that seamlessly integrates Python backen
   - Easy-to-understand communication protocol
   - No build tools or complex setup required
 
+In the game you can currently click "Attack" and you will lose HP.
+You can save and load game state and your data will be saved/loaded.
+
 ## Requirements
 
 - Python 3.8 or higher

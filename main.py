@@ -157,7 +157,7 @@ class GameApp:
         self.view.move(x, y)
         
         # Set window title
-        self.view.setWindowTitle("RPG Game")
+        self.view.setWindowTitle("Serverless JavaScript RPG DEMO by non-npc")
         
         # Enable developer tools (F12)
         self.view.page().settings().setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
