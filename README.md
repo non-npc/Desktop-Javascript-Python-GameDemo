@@ -25,6 +25,13 @@ A windows desktop application framework that seamlessly integrates Python backen
 In the game you can currently click "Attack" and you will lose HP.
 You can save and load game state and your data will be saved/loaded.
 
+## Screenshots
+![Main Menu](screenshot01.png)
+![Character Name](screenshot02.png)
+![Game Interface](screenshot03.png)
+![Save Game](screenshot04.png)
+![Load Game](screenshot05.png)
+
 ## Requirements
 
 - Python 3.8 or higher
