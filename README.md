@@ -1,6 +1,6 @@
 # Nodeless Desktop Javascript Python
 
-A windows desktop application framework that seamlessly integrates Python backend with JavaScript frontend using PyQt6 WebView, enabling the development of rich desktop applications without the need for Node.js, NPM and all that jazz.
+A windows desktop application framework that seamlessly integrates Python backend with JavaScript frontend using PyQt6 WebView, enabling the development of rich desktop applications without the need for added layers of complexity.
 
 ## Features
 
