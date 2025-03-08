@@ -1,6 +1,6 @@
 # Desktop Javascript Python Game Demo
 
-A windows desktop application framework that seamlessly integrates Python backend with JavaScript frontend using PyQt6 WebView, enabling the development of rich desktop applications without the need for added layers of complexity.
+A simple game/ui demo with Python backend and JavaScript frontend using PyQt6 WebView, enabling the development of rich desktop applications without the need for added layers of complexity.
 
 ## Features
 
