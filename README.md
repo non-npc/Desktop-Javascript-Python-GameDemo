@@ -41,8 +41,8 @@ You can save and load game state and your data will be saved/loaded.
 
 1. Clone this repository:
    ```
-   git clone https://github.com/non-npc/Nodeless-Desktop-Javascript-Python.git
-   cd Nodeless-Desktop-Javascript-Python
+   git clone https://github.com/non-npc/Desktop-Javascript-Python-GameDemo.git
+   cd Desktop-Javascript-Python-GameDemo
    ```
 
 2. Create a virtual environment (optional but recommended):
