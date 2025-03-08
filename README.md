@@ -1,4 +1,4 @@
-# Nodeless Desktop Javascript Python
+# Desktop Javascript Python Game Demo
 
 A windows desktop application framework that seamlessly integrates Python backend with JavaScript frontend using PyQt6 WebView, enabling the development of rich desktop applications without the need for added layers of complexity.
 
